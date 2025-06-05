@@ -10,5 +10,8 @@
   "author": "",
   "license": "ISC",
   "type": "module",
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "@types/node": "^22.15.30"
+  }
 }
