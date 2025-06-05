@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "lint": "eslint",
     "test": "node --test",
     "testWatch": "node --test --watch"
   },
