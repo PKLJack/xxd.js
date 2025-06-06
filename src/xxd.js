@@ -124,6 +124,12 @@ function encode(config) {
 
 function main() {
   const config = getConfig(process.argv);
+  config.outputStream.on("error", (error) => {
+    if (error.code === "EPIPE") {
+      // NOTE: Look into this
+      process.exit(0);
+    }
+  });
   encode(config);
 }
 
