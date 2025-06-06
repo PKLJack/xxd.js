@@ -3,6 +3,7 @@
   - Handle pipefail (`... | head`)
   - Test Buffer vs ArrayBuffer vs Array
 */
+import * as readline from "node:readline/promises";
 
 /**
  * @typedef Config
@@ -122,15 +123,45 @@ function encode(config) {
   });
 }
 
+/**
+ * @param {Config} config
+ */
+function decode(config) {
+  const { inputStream, outputStream } = config;
+  inputStream.setEncoding("utf8");
+
+  const rl = readline.createInterface({
+    input: inputStream,
+    terminal: false,
+    crlfDelay: Infinity,
+  });
+
+  rl.on("line", (chunk) => {
+    // TODO:
+    // - Don't group left and right, they are useless
+    // - Handle no match exception
+    const result = /(?<left>.+?): (?<mid>.+?)  +(?<right>.+)/.exec(chunk);
+    const { mid } = result.groups;
+    const buffer = Buffer.from(mid.replaceAll(" ", ""), "hex");
+    outputStream.write(buffer); // Writing Buffer, encoding ignored
+  });
+}
+
 function main() {
   const config = getConfig(process.argv);
+
   config.outputStream.on("error", (error) => {
     if (error.code === "EPIPE") {
       // NOTE: Look into this
       process.exit(0);
     }
   });
-  encode(config);
+
+  if (config.reverse) {
+    decode(config);
+  } else {
+    encode(config);
+  }
 }
 
 export {
