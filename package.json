@@ -1,8 +1,11 @@
 {
-  "name": "repo",
+  "name": "xxd.js",
   "version": "0.0.1",
   "description": "",
-  "main": "index.js",
+  "bin": {
+    "xxd.js": "./bin/xxd.js"
+  },
+  "main": "./src/xxd.js",
   "scripts": {
     "lint": "eslint",
     "test": "node --test",
