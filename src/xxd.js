@@ -12,6 +12,51 @@ import * as readline from "node:readline/promises";
  * @prop {NodeJS.WritableStream} outputStream
  */
 
+function printHelp() {
+  process.stdout.write(
+    [
+      "Usage:",
+      "        xxd.js",
+      "    or",
+      "        xxd.js -r",
+      "Options:",
+      "    -h        print this summary.",
+      "    -r        reverse operation.",
+      "    -v        show version.",
+      "",
+    ].join("\n"),
+  );
+}
+
+function printVerion({ author, version }) {
+  process.stdout.write(
+    `xxd.js ${version}` + (author && ` by ${author}`) + "\n",
+  );
+}
+
+async function getPackageJson() {
+  const { default: packageJson } = await import("../package.json", {
+    with: { type: "json" },
+  });
+  return packageJson;
+}
+
+/**
+ * @param {string[]} argv - Command line arguments
+ */
+async function checkArgv(argv) {
+  for (const x of argv) {
+    if (x === "-h" || x === "--help") {
+      printHelp();
+      process.exit();
+    } else if (x === "-v" || x === "--version") {
+      printVerion(await getPackageJson());
+      process.exit();
+    }
+  }
+  return argv;
+}
+
 /**
  * Keep printable ASCII characters and replace others with `.`
  * Only handles the first characer
@@ -147,8 +192,9 @@ function decode(config) {
   });
 }
 
-function main() {
-  const config = getConfig(process.argv);
+async function main() {
+  const argv = await checkArgv(process.argv);
+  const config = getConfig(argv);
 
   config.outputStream.on("error", (error) => {
     if (error.code === "EPIPE") {
